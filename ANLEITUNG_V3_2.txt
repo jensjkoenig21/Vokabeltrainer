@@ -1,0 +1,6 @@
+V3.2 wurde komplett neu aufgebaut, nicht auf V3.1 gepatcht.
+In GitHub auf main ersetzen: index.html, sw.js, manifest.webmanifest.
+Icons müssen nicht erneut ersetzt werden, sind aber beigefügt.
+Die vorhandenen Vokabeln werden aus vt3 bzw. vt2 übernommen.
+Nach Upload 1–2 Minuten warten und die Seite neu laden.
+Test: '4 Antworten' muss oben als aktiver Modus erscheinen und vier Antwortbuttons zeigen.

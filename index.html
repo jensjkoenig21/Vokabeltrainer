@@ -1,81 +1,99 @@
 <!doctype html>
-<html lang="de">
-<head>
+<html lang="de"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#3157d5">
-<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="default">
-<link rel="manifest" href="./manifest.webmanifest"><link rel="apple-touch-icon" href="./icon-192.png">
-<title>Vokabeltrainer</title>
+<meta name="theme-color" content="#3458db"><meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="./manifest.webmanifest"><title>Vokabeltrainer V3.2</title>
 <style>
-:root{--bg:#f4f7fb;--card:#fff;--text:#172033;--muted:#687083;--p:#3157d5;--good:#16834a;--bad:#c93636;--line:#e3e7ef}
+:root{--bg:#f3f6fa;--card:#fff;--text:#162039;--muted:#687289;--blue:#3458db;--light:#edf1ff;--good:#17824b;--bad:#c73535;--line:#e2e7ef}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
-header{padding:calc(18px + env(safe-area-inset-top)) 18px 15px;background:#fff;border-bottom:1px solid var(--line)}h1{margin:0;font-size:23px}header p{margin:4px 0 0;color:var(--muted);font-size:13px}
-main{max-width:720px;margin:auto;padding:16px 13px 100px}.card{background:#fff;border-radius:18px;padding:17px;margin-bottom:13px;box-shadow:0 4px 18px #0000000b}h2{font-size:18px;margin:0 0 12px}
-button,.filelabel{border:0;border-radius:12px;padding:13px 14px;font-weight:750;font-size:15px;cursor:pointer}.primary{background:var(--p);color:#fff}.secondary,.filelabel{background:#edf1ff;color:#2947ad}.danger{background:#fff0f0;color:var(--bad)}
-input,select,textarea{width:100%;padding:13px;border:1px solid #d6dbe5;border-radius:12px;font-size:16px;background:#fff}textarea{min-height:110px}.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1;min-width:130px}
-.small{font-size:13px;color:var(--muted);line-height:1.45}.hidden{display:none!important}.question{text-align:center;padding:20px 5px}.word{font-size:31px;font-weight:850;margin:12px 0 20px}.feedback{padding:12px;border-radius:12px;margin:12px 0;font-weight:700}.good{background:#eaf8f0;color:var(--good)}.bad{background:#fff0f0;color:var(--bad)}
-.progress{height:10px;background:#e9edf4;border-radius:99px;overflow:hidden;margin:10px 0}.progress div{height:100%;background:var(--p)}.stat{font-weight:850;font-size:22px}.unit{padding:11px 0;border-bottom:1px solid var(--line)}.unit:last-child{border:0}
-.filelabel{display:block;text-align:center}.notice{padding:11px;background:#f6f7fa;border-radius:11px;margin-top:10px}
-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding:7px 6px calc(7px + env(safe-area-inset-bottom));z-index:5}nav button{flex:1;background:#fff;color:#626b7c;font-size:12px;padding:7px 2px}nav button.active{color:var(--p)}
-.choiceV3{width:100%;margin:6px 0;background:#f6f7fa;color:var(--text);border:1px solid #dfe3ea;text-align:left}.choiceV3.ok{background:#eaf8f0;color:var(--good)}.choiceV3.no{background:#fff0f0;color:var(--bad)}</style></head><body>
-<header><h1>📚 Vokabeltrainer V3.1</h1><p>⭐ <span id="v3points">0</span> Punkte · 🔥 <span id="v3streak">0</span></p></header>
+header{background:#fff;padding:calc(16px + env(safe-area-inset-top)) 20px 14px;border-bottom:1px solid var(--line)}
+header h1{margin:0;font-size:25px}header p{margin:8px 0 0;color:var(--muted);font-size:15px}
+main{max-width:720px;margin:auto;padding:16px 14px 100px}.card{background:#fff;border-radius:22px;padding:20px;margin-bottom:15px;box-shadow:0 5px 22px #0000000a}
+h2{margin:0 0 15px;font-size:21px}.small{font-size:14px;color:var(--muted);line-height:1.4}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1}
+button,.filebtn{border:0;border-radius:14px;padding:15px;font-size:16px;font-weight:800;cursor:pointer}.primary{background:var(--blue);color:#fff}.secondary,.filebtn{background:var(--light);color:#2949b7}.mode{text-align:center;min-height:80px}.wide{grid-column:1/-1}
+input,select{width:100%;border:1px solid #d6dce7;border-radius:13px;padding:14px;font-size:17px;background:#fff}
+.hidden{display:none!important}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.num{font-size:29px;font-weight:900}
+.progress{height:10px;background:#e8edf5;border-radius:99px;overflow:hidden;margin-top:14px}.progress div{height:100%;background:var(--blue)}
+.question{text-align:center}.prompt{font-size:14px;color:var(--muted);margin-top:8px}.word{font-size:31px;font-weight:900;margin:18px 0}
+.choice{display:block;width:100%;margin:8px 0;text-align:left;background:#f6f7fa;color:var(--text);border:1px solid #dfe4ec}
+.choice.correct{background:#e9f8f0;border-color:#75bd96}.choice.wrong{background:#fff0f0;border-color:#e29999}
+.feedback{padding:13px;border-radius:12px;margin:12px 0;font-weight:750}.good{background:#e9f8f0;color:var(--good)}.bad{background:#fff0f0;color:var(--bad)}
+.unit{padding:11px 0;border-bottom:1px solid var(--line)}.unit:last-child{border:0}.speaker{padding:10px 13px}
+.result{text-align:center}.result .big{font-size:48px;font-weight:900}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding:7px 5px calc(7px + env(safe-area-inset-bottom));z-index:10}
+nav button{flex:1;background:#fff;color:#626c80;padding:7px 2px;font-size:12px}nav button.active{color:var(--blue)}
+</style></head><body>
+<header><h1>📚 Vokabeltrainer V3.2</h1><p>⭐ <span id="points">0</span> Punkte · 🔥 <span id="bestStreak">0</span></p></header>
 <main>
 <section id="home">
-<div class="card"><h2>Heute lernen</h2><div class="row"><div><div class="stat" id="totalStat">0</div><div class="small">Vokabeln</div></div><div><div class="stat" id="learnedStat">0</div><div class="small">sicher</div></div><div><div class="stat" id="hardStat">0</div><div class="small">schwierig</div></div></div><div class="progress"><div id="allProgress"></div></div><button class="primary" style="width:100%;margin-top:8px" onclick="show('learn');prepareLearn()">▶ Lernen starten</button></div>
-<div class="card"><h2>Lernmodi</h2><div class="row">
-<button class="primary" onclick="startV3('ten')">🎯 10er-Runde</button>
-<button class="secondary" onclick="startV3('choice')">🔘 4 Antworten</button>
-<button class="secondary" onclick="startV3('errors')">❌ Fehlertraining</button>
-<button class="secondary" onclick="startV3('test')">📝 Klassenarbeit</button>
-</div><p class="small">✍️ Im normalen Modus wird aktiv geschrieben. 🔊 Englische Wörter lassen sich anhören.</p></div>
+<div class="card"><h2>Heute lernen</h2><div class="stats"><div><div class="num" id="total">0</div><div class="small">Vokabeln</div></div><div><div class="num" id="safe">0</div><div class="small">sicher</div></div><div><div class="num" id="hard">0</div><div class="small">schwierig</div></div></div><div class="progress"><div id="allProgress"></div></div></div>
+<div class="card"><h2>Lernmodi</h2><div class="grid">
+<button class="primary mode" onclick="startMode('normal')">▶️ Lernen starten</button>
+<button class="primary mode" onclick="startMode('ten')">🎯 10er-Runde</button>
+<button class="secondary mode" onclick="startMode('choice')">🔘 4 Antworten</button>
+<button class="secondary mode" onclick="startMode('errors')">❌ Fehlertraining</button>
+<button class="secondary mode wide" onclick="startMode('test')">📝 Klassenarbeit</button>
+</div><p class="small">10er-Runde: Schreiben und Auswahl gemischt. Klassenarbeit: 10 Schreibaufgaben, Auswertung erst am Ende.</p></div>
 <div class="card"><h2>Units</h2><div id="unitList"></div></div>
 </section>
-<section id="learn" class="hidden"><div class="card"><h2 id="modeTitleV31">🎓 Lernen</h2></div><div class="card"><div class="row"><select id="unitSelect" onchange="nextQuestion()"></select><select id="direction" onchange="nextQuestion()"><option value="de-en">Deutsch → Englisch</option><option value="en-de">Englisch → Deutsch</option><option value="mix">Gemischt</option></select></div><div class="question"><div class="small" id="qLabel"></div><div class="word" id="qWord">–</div><button id="speakV3" class="secondary hidden" onclick="speakWordV3()">🔊 Anhören</button><div id="choiceV3" class="hidden"></div><input id="answer" autocapitalize="none" spellcheck="false" placeholder="Antwort eingeben …" onkeydown="if(event.key==='Enter'){event.preventDefault();document.getElementById('nextBtn').classList.contains('hidden')?checkAnswer():nextQuestion()}"><div id="feedback" class="hidden"></div><button id="checkBtn" class="primary" style="width:100%;margin-top:12px" onclick="checkAnswer()">Prüfen</button><button id="nextBtn" class="secondary hidden" style="width:100%;margin-top:12px" onclick="nextQuestion()">Nächste Vokabel</button></div><div class="small" id="sessionStat"></div></div></section>
-<section id="import" class="hidden"><div class="card"><h2>Vokabeln importieren</h2><input id="unitName" placeholder="Unit-Name, z. B. Unit 1 – Hello"><div style="height:10px"></div><label class="filelabel">📄 CSV-Datei auswählen<input id="fileInput" type="file" accept=".csv,.txt,text/csv,text/plain" style="display:none"></label><div id="importMsg" class="notice small">Format: Englisch und Deutsch in zwei Spalten. CSV mit Komma, Semikolon oder Tab wird erkannt.</div></div><div class="card"><h2>Oder Liste einfügen</h2><textarea id="pasteArea" placeholder="school[TAB]Schule&#10;friend[TAB]Freund"></textarea><button class="primary" style="width:100%;margin-top:9px" onclick="importPasted()">Übernehmen</button></div></section>
-<section id="manage" class="hidden"><div class="card"><h2>Meine Daten</h2><div id="manageUnits"></div></div><div class="card"><h2>Sicherung</h2><p class="small">Der Lernstand liegt auf diesem Gerät. Mit der Sicherung könnt ihr ihn übertragen.</p><div class="row"><button class="secondary" onclick="backup()">⬇ Sicherung</button><label class="filelabel">⬆ Wiederherstellen<input id="restoreInput" type="file" accept=".json" style="display:none"></label></div></div></section>
+
+<section id="learn" class="hidden">
+<div class="card"><h2 id="modeTitle">🎓 Lernen</h2>
+<div class="row"><select id="unitSelect" onchange="restartMode()"></select><select id="direction"><option value="de-en">Deutsch → Englisch</option><option value="en-de">Englisch → Deutsch</option><option value="mix">Gemischt</option></select></div>
+<div class="progress"><div id="sessionProgress"></div></div><div id="sessionInfo" class="small" style="margin-top:7px"></div>
+<div class="question"><div id="prompt" class="prompt"></div><div class="word" id="questionWord">–</div><button id="speaker" class="secondary speaker hidden" onclick="speak()">🔊 Anhören</button>
+<div id="writeArea"><input id="answer" autocapitalize="none" spellcheck="false" placeholder="Antwort eingeben …"><button id="check" class="primary" style="width:100%;margin-top:10px" onclick="checkWritten()">Prüfen</button></div>
+<div id="choices" class="hidden"></div><div id="feedback" class="hidden"></div><button id="next" class="secondary hidden" style="width:100%" onclick="nextQuestion()">Weiter</button>
+</div><button class="secondary" style="width:100%;margin-top:12px" onclick="finish(false)">Runde beenden</button></div>
+</section>
+
+<section id="result" class="hidden"><div class="card result"><h2 id="resultTitle"></h2><div class="big" id="resultScore"></div><p id="resultText"></p><button class="primary" style="width:100%" onclick="show('home')">Zur Startseite</button></div></section>
+
+<section id="import" class="hidden"><div class="card"><h2>Vokabeln importieren</h2><input id="unitName" placeholder="Name der Unit"><div style="height:10px"></div><label class="filebtn" style="display:block;text-align:center">📄 CSV / TSV auswählen<input id="fileInput" type="file" accept=".csv,.tsv,.txt" style="display:none"></label><p id="importMsg" class="small">Zwei Spalten: Englisch und Deutsch.</p></div></section>
+
+<section id="data" class="hidden"><div class="card"><h2>Daten</h2><div id="manage"></div></div><div class="card"><div class="row"><button class="secondary" onclick="backup()">⬇ Sicherung</button><label class="filebtn" style="text-align:center">⬆ Wiederherstellen<input id="restore" type="file" accept=".json" style="display:none"></label></div></div></section>
 </main>
-<nav><button id="nav-home" class="active" onclick="show('home')">🏠<br>Start</button><button id="nav-learn" onclick="show('learn');prepareLearn()">🎓<br>Lernen</button><button id="nav-import" onclick="show('import')">➕<br>Import</button><button id="nav-manage" onclick="show('manage');renderManage()">⚙️<br>Daten</button></nav>
+<nav><button id="n-home" class="active" onclick="show('home')">🏠<br>Start</button><button id="n-learn" onclick="startMode('normal')">🎓<br>Lernen</button><button id="n-import" onclick="show('import')">➕<br>Import</button><button id="n-data" onclick="show('data')">⚙️<br>Daten</button></nav>
 <script>
-const $=id=>document.getElementById(id); let data=JSON.parse(localStorage.getItem('vt2')||'{"units":{}}'),current=null,session={right:0,wrong:0};
-function save(){localStorage.setItem('vt2',JSON.stringify(data));renderHome()}
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function norm(s){return String(s||'').trim().toLowerCase().replace(/[.!?]/g,'').replace(/\s+/g,' ')}
-function alternatives(s){return String(s).split(/\s*(?:;|\/|\bor\b)\s*/i).map(norm).filter(Boolean)}
-function show(id){['home','learn','import','manage'].forEach(x=>$(x).classList.toggle('hidden',x!==id));document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));$('nav-'+id).classList.add('active');if(id==='home')renderHome()}
-function words(){return Object.values(data.units).flat()}
-function renderHome(){let a=words(),l=a.filter(w=>(w.streak||0)>=3).length,h=a.filter(w=>(w.wrong||0)>0&&(w.streak||0)<3).length;$('totalStat').textContent=a.length;$('learnedStat').textContent=l;$('hardStat').textContent=h;$('allProgress').style.width=(a.length?100*l/a.length:0)+'%';$('unitList').innerHTML=Object.entries(data.units).map(([u,w])=>`<div class="unit"><b>${esc(u)}</b><div class="small">${w.length} Vokabeln · ${w.filter(x=>(x.streak||0)>=3).length} sicher</div></div>`).join('')||'<div class="small">Noch keine Vokabeln importiert.</div>';fillUnits()}
+const $=x=>document.getElementById(x);
+let data;
+try{data=JSON.parse(localStorage.getItem('vt3')||localStorage.getItem('vt2')||'{"units":{}}')}catch(e){data={units:{}}}
+if(!data.units)data.units={}; data.points=Number(data.points||localStorage.getItem('v32points')||0);data.bestStreak=Number(data.bestStreak||0);
+let mode='normal',queue=[],pos=0,current=null,answered=false,session={right:0,wrong:0,streak:0,details:[]};
+function norm(x){return String(x||'').trim().toLowerCase().replace(/[.!?]/g,'').replace(/\s+/g,' ')}
+function esc(x){return String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function save(){localStorage.setItem('vt3',JSON.stringify(data));localStorage.setItem('v32points',String(data.points));renderHome()}
+function allWords(){return Object.values(data.units).flat()}
+function show(id){['home','learn','result','import','data'].forEach(x=>$(x).classList.toggle('hidden',x!==id));document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));if($('n-'+id))$('n-'+id).classList.add('active');if(id==='home')renderHome();if(id==='data')renderManage()}
+function renderHome(){let a=allWords(),safe=a.filter(w=>(w.streak||0)>=3).length,hard=a.filter(w=>(w.wrong||0)>0&&(w.streak||0)<3).length;$('total').textContent=a.length;$('safe').textContent=safe;$('hard').textContent=hard;$('allProgress').style.width=(a.length?safe/a.length*100:0)+'%';$('points').textContent=data.points;$('bestStreak').textContent=data.bestStreak;$('unitList').innerHTML=Object.entries(data.units).map(([u,w])=>`<div class="unit"><b>${esc(u)}</b><div class="small">${w.length} Lernpaare · ${w.filter(x=>(x.streak||0)>=3).length} sicher</div></div>`).join('')||'<div class="small">Noch keine Vokabeln importiert.</div>';fillUnits()}
 function fillUnits(){let old=$('unitSelect').value;$('unitSelect').innerHTML='<option value="__all">Alle Units</option>'+Object.keys(data.units).map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');if([...$('unitSelect').options].some(o=>o.value===old))$('unitSelect').value=old}
-function prepareLearn(){fillUnits();if(!words().length){$('qWord').textContent='Bitte zuerst Vokabeln importieren';return}nextQuestion()}
-function pool(){let a=$('unitSelect').value==='__all'?words():(data.units[$('unitSelect').value]||[]),p=[];a.forEach(w=>{let n=Math.max(1,4-(w.streak||0)+Math.min(3,w.wrong||0));for(let i=0;i<n;i++)p.push(w)});return p}
-function nextQuestion(){let p=pool();if(!p.length)return;current=p[Math.floor(Math.random()*p.length)];let d=$('direction').value;if(d==='mix')d=Math.random()<.5?'de-en':'en-de';current._dir=d;$('qLabel').textContent=d==='de-en'?'Wie heißt das auf Englisch?':'Was bedeutet das auf Deutsch?';$('qWord').textContent=d==='de-en'?current.de:current.en;$('answer').value='';$('feedback').className='hidden';$('checkBtn').classList.remove('hidden');$('nextBtn').classList.add('hidden');$('answer').focus();stats()}
-function checkAnswer(){if(!current)return;let expected=current._dir==='de-en'?current.en:current.de,g=norm($('answer').value),alts=alternatives(expected),ok=alts.includes(g)||norm(expected)===g;if(ok){current.streak=(current.streak||0)+1;session.right++;$('feedback').textContent='✓ Richtig!';$('feedback').className='feedback good'}else{current.streak=0;current.wrong=(current.wrong||0)+1;session.wrong++;$('feedback').innerHTML='Noch nicht. Richtig: <b>'+esc(expected)+'</b>';$('feedback').className='feedback bad'}save();$('checkBtn').classList.add('hidden');$('nextBtn').classList.remove('hidden');stats()}
-function stats(){$('sessionStat').textContent=`Diese Runde: ${session.right} richtig · ${session.wrong} falsch`}
-function detectDelimiter(text){let line=text.split(/\r?\n/).find(x=>x.trim())||'';let counts={"\t":(line.match(/\t/g)||[]).length,",":(line.match(/,/g)||[]).length,";":(line.match(/;/g)||[]).length};return Object.keys(counts).sort((a,b)=>counts[b]-counts[a])[0]}
-function parseCSV(text){let d=detectDelimiter(text),rows=[],row=[],field='',q=false;for(let i=0;i<text.length;i++){let c=text[i];if(c==='"'){if(q&&text[i+1]==='"'){field+='"';i++}else q=!q}else if(c===d&&!q){row.push(field);field=''}else if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&text[i+1]==='\n')i++;row.push(field);if(row.some(x=>x.trim()))rows.push(row);row=[];field=''}else field+=c}row.push(field);if(row.some(x=>x.trim()))rows.push(row);return rows}
-function doImport(text){let rows=parseCSV(text).map(r=>[String(r[0]||'').trim(),String(r.slice(1).join(detectDelimiter(text))||'').trim()]).filter(r=>r[0]&&r[1]);if(rows.length&&/engl|english/i.test(rows[0][0])&&/deut|german/i.test(rows[0][1]))rows.shift();let u=$('unitName').value.trim()||'Neue Unit';if(!data.units[u])data.units[u]=[];let set=new Set(data.units[u].map(w=>norm(w.en)+'|'+norm(w.de))),n=0;for(let [en,de] of rows){let k=norm(en)+'|'+norm(de);if(!set.has(k)){data.units[u].push({en,de,streak:0,wrong:0});set.add(k);n++}}save();$('importMsg').innerHTML=n?`✓ <b>${n} Vokabeln</b> in „${esc(u)}“ importiert.`:'Keine neuen Vokabeln erkannt.';renderManage()}
-function importPasted(){doImport($('pasteArea').value);$('pasteArea').value=''}
-$('fileInput').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>doImport(r.result);r.onerror=()=>$('importMsg').textContent='Datei konnte nicht gelesen werden.';r.readAsText(f);e.target.value=''})
-function renderManage(){$('manageUnits').innerHTML=Object.entries(data.units).map(([u,w])=>`<div class="unit"><b>${esc(u)}</b><div class="small">${w.length} Vokabeln</div><button class="danger" style="margin-top:7px" onclick='delUnit(${JSON.stringify(u)})'>Unit löschen</button></div>`).join('')||'<div class="small">Keine Units gespeichert.</div>'}
-function delUnit(u){if(confirm(`„${u}“ wirklich löschen?`)){delete data.units[u];save();renderManage()}}
-function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='vokabeltrainer-sicherung.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
-$('restoreInput').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.units)throw 0;data=x;save();renderManage();alert('Sicherung wiederhergestellt.')}catch{alert('Ungültige Sicherungsdatei.')}};r.readAsText(f)})
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
-
-let v3mode='write',v3limit=0,v3count=0,v3points=Number(localStorage.getItem('v3points')||0),v3streak=0;
-function updateV3(){if(document.getElementById('v3points'))document.getElementById('v3points').textContent=v3points;if(document.getElementById('v3streak'))document.getElementById('v3streak').textContent=v3streak;localStorage.setItem('v3points',String(v3points))}
-function startV3(m){
- show('learn');
- prepareLearn();
- v3mode=m;v3count=0;v3limit=(m==='ten'||m==='test')?10:0;
- session={right:0,wrong:0,asked:0};
- const names={ten:'🎯 10er-Runde',choice:'🔘 4 Antworten',errors:'❌ Fehlertraining',test:'📝 Klassenarbeit'};
- let t=document.getElementById('modeTitleV31');if(t)t.textContent=names[m];
- nextQuestion();
-}
-function speakWordV3(){if(!current||!('speechSynthesis'in window))return;let u=new SpeechSynthesisUtterance(current.en);u.lang='en-GB';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u)}
-function editDistanceV3(a,b){a=norm(a);b=norm(b);let d=Array.from({length:a.length+1},()=>Array(b.length+1).fill(0));for(let i=0;i<=a.length;i++)d[i][0]=i;for(let j=0;j<=b.length;j++)d[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
-function renderChoicesV3(){let exp=current._dir==='de-en'?current.en:current.de;let all=(unitSelect.value==='__all'?allWords():(data.units[unitSelect.value]||[])).filter(x=>x!==current).map(x=>current._dir==='de-en'?x.en:x.de);all=[...new Set(all.filter(x=>norm(x)!==norm(exp)))].sort(()=>Math.random()-.5).slice(0,3);let opts=[exp,...all].sort(()=>Math.random()-.5);choiceV3.innerHTML=opts.map(x=>`<button class="choiceV3" onclick='chooseV3(this,${JSON.stringify(x)})'>${esc(x)}</button>`).join('')}
-function chooseV3(btn,val){let exp=current._dir==='de-en'?current.en:current.de,ok=norm(val)===norm(exp);document.querySelectorAll('.choiceV3').forEach(b=>{if(norm(b.textContent)===norm(exp))b.classList.add('ok')});if(!ok)btn.classList.add('no');if(ok){current.streak=(current.streak||0)+1;session.right++;v3streak++;v3points+=10+Math.min(v3streak,5)}else{current.streak=0;current.wrong=(current.wrong||0)+1;session.wrong++;v3streak=0}save();updateV3();setTimeout(()=>nextQuestion(),700)}
-
-updateV3();renderHome();
+function selectedWords(){return $('unitSelect').value==='__all'?allWords():(data.units[$('unitSelect').value]||[])}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+const titles={normal:'▶️ Lernen',ten:'🎯 10er-Runde',choice:'🔘 4 Antworten',errors:'❌ Fehlertraining',test:'📝 Klassenarbeit'};
+function startMode(m){if(!allWords().length){alert('Bitte zuerst Vokabeln importieren.');return}mode=m;show('learn');$('modeTitle').textContent=titles[m];fillUnits();buildQueue()}
+function restartMode(){if(!$('learn').classList.contains('hidden'))buildQueue()}
+function buildQueue(){let a=selectedWords();if(mode==='errors'){let e=a.filter(w=>(w.wrong||0)>0||(w.streak||0)<2);a=e.length?e:a}queue=shuffle(a);if(mode==='ten'||mode==='test')queue=queue.slice(0,Math.min(10,queue.length));pos=0;session={right:0,wrong:0,streak:0,details:[]};nextQuestion()}
+function nextQuestion(){if(pos>=queue.length){finish(true);return}current=queue[pos++];answered=false;let d=$('direction').value;if(d==='mix')d=Math.random()<.5?'de-en':'en-de';current._dir=d;$('prompt').textContent=d==='de-en'?'Wie heißt das auf Englisch?':'Was bedeutet das auf Deutsch?';$('questionWord').textContent=d==='de-en'?current.de:current.en;$('speaker').classList.toggle('hidden',d!=='en-de');$('feedback').className='hidden';$('next').classList.add('hidden');$('answer').value='';
+let mc=mode==='choice'||(mode==='ten'&&pos%2===0);$('choices').classList.toggle('hidden',!mc);$('writeArea').classList.toggle('hidden',mc);if(mc)renderChoices();else setTimeout(()=>$('answer').focus(),30);updateSession()}
+function expected(){return current._dir==='de-en'?current.en:current.de}
+function renderChoices(){let correct=expected(),others=selectedWords().filter(w=>w!==current).map(w=>current._dir==='de-en'?w.en:w.de);others=shuffle([...new Set(others.filter(x=>norm(x)!==norm(correct)))]).slice(0,3);let opts=shuffle([correct,...others]);$('choices').innerHTML=opts.map(x=>`<button class="choice" onclick='choose(this,${JSON.stringify(x)})'>${esc(x)}</button>`).join('')}
+function choose(btn,val){if(answered)return;answered=true;let ok=norm(val)===norm(expected());document.querySelectorAll('.choice').forEach(b=>{if(norm(b.textContent)===norm(expected()))b.classList.add('correct')});if(!ok)btn.classList.add('wrong');record(ok,val);setTimeout(nextQuestion,800)}
+function alternatives(x){return String(x).split(/\s*(?:\/|\bor\b)\s*/i).map(norm).filter(Boolean)}
+function dist(a,b){a=norm(a);b=norm(b);let d=Array.from({length:a.length+1},()=>Array(b.length+1).fill(0));for(let i=0;i<=a.length;i++)d[i][0]=i;for(let j=0;j<=b.length;j++)d[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d[a.length][b.length]}
+function checkWritten(){if(answered)return;let g=$('answer').value,a=alternatives(expected()),ok=a.includes(norm(g))||norm(g)===norm(expected()),near=!ok&&norm(g).length>=5&&Math.min(...a.map(x=>dist(g,x)))===1;answered=true;record(ok,g);if(mode!=='test'){if(ok){$('feedback').textContent='✓ Richtig!';$('feedback').className='feedback good'}else{$('feedback').innerHTML=(near?'Fast richtig – prüfe die Schreibweise.<br>':'Noch nicht.<br>')+'Richtig: <b>'+esc(expected())+'</b>';$('feedback').className='feedback bad'}}else{$('feedback').textContent='Antwort gespeichert.';$('feedback').className='feedback good'}$('next').classList.remove('hidden')}
+function record(ok,given){session.details.push({q:$('questionWord').textContent,given,expected:expected(),ok});if(ok){session.right++;session.streak++;current.streak=(current.streak||0)+1;data.points+=10+Math.min(session.streak,5);data.bestStreak=Math.max(data.bestStreak,session.streak)}else{session.wrong++;session.streak=0;current.wrong=(current.wrong||0)+1;current.streak=0}save();updateSession()}
+function updateSession(){$('sessionInfo').textContent=`${pos} / ${queue.length} · ${session.right} richtig · ${session.wrong} falsch`;$('sessionProgress').style.width=(queue.length?Math.min(100,(pos-1)/queue.length*100):0)+'%'}
+function finish(completed){if(!session.details.length){show('home');return}show('result');let n=session.details.length,p=Math.round(session.right/n*100);$('resultTitle').textContent=mode==='test'?'📝 Klassenarbeit beendet':completed?'🎉 Runde geschafft':'Runde beendet';$('resultScore').textContent=`${session.right}/${n}`;$('resultText').textContent=`${p}% richtig · ${session.wrong} Fehler · ⭐ ${data.points} Punkte insgesamt`;mode='normal'}
+function speak(){if(!current||!('speechSynthesis'in window))return;let u=new SpeechSynthesisUtterance(current.en);u.lang='en-GB';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u)}
+$('answer').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();answered?nextQuestion():checkWritten()}})
+function detect(t){let l=t.split(/\r?\n/).find(x=>x.trim())||'';let c={"\t":(l.match(/\t/g)||[]).length,",":(l.match(/,/g)||[]).length,";":(l.match(/;/g)||[]).length};return Object.keys(c).sort((a,b)=>c[b]-c[a])[0]}
+function parse(t){let d=detect(t),rows=[],row=[],f='',q=false;for(let i=0;i<t.length;i++){let c=t[i];if(c==='"'){if(q&&t[i+1]==='"'){f+='"';i++}else q=!q}else if(c===d&&!q){row.push(f);f=''}else if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&t[i+1]==='\n')i++;row.push(f);if(row.some(x=>x.trim()))rows.push(row);row=[];f=''}else f+=c}row.push(f);if(row.some(x=>x.trim()))rows.push(row);return rows}
+$('fileInput').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return,r=new FileReader();r.onload=()=>{let d=detect(r.result),rows=parse(r.result).map(x=>[String(x[0]||'').trim(),String(x.slice(1).join(d)||'').trim()]).filter(x=>x[0]&&x[1]);if(rows.length&&/engl|english/i.test(rows[0][0]))rows.shift();let u=$('unitName').value.trim()||'Neue Unit';if(!data.units[u])data.units[u]=[];let keys=new Set(data.units[u].map(w=>norm(w.en)+'|'+norm(w.de))),n=0;rows.forEach(([en,de])=>{let k=norm(en)+'|'+norm(de);if(!keys.has(k)){data.units[u].push({en,de,streak:0,wrong:0});keys.add(k);n++}});save();$('importMsg').innerHTML=`✓ <b>${n}</b> Lernpaare importiert.`};r.readAsText(f);e.target.value=''})
+function renderManage(){$('manage').innerHTML=Object.entries(data.units).map(([u,w])=>`<div class="unit"><b>${esc(u)}</b><div class="small">${w.length} Lernpaare</div><button class="secondary" style="margin-top:7px" onclick='resetUnit(${JSON.stringify(u)})'>Lernstand zurücksetzen</button></div>`).join('')}
+function resetUnit(u){if(confirm('Lernstand dieser Unit zurücksetzen?')){data.units[u].forEach(w=>{w.streak=0;w.wrong=0});save();renderManage()}}
+function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='vokabeltrainer-v32-backup.json';a.click()}
+$('restore').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return,r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.units)throw 0;data=x;save();renderManage();alert('Sicherung wiederhergestellt.')}catch(e){alert('Ungültige Sicherung.')}};r.readAsText(f)})
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=32').catch(()=>{}));
+renderHome();
 </script></body></html>
