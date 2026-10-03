@@ -1,0 +1,1 @@
+V3: Im bestehenden GitHub-Repository index.html und sw.js ersetzen. Optional auch manifest.webmanifest und die Icons erneut hochladen. Vorhandene Vokabeln bleiben erhalten. Nach dem Upload GitHub Pages kurz warten lassen und die App neu laden.
