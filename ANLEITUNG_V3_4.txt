@@ -1,0 +1,11 @@
+Vokabeltrainer V3.4
+Neu:
+- 🎧 Hörtraining: englisches Wort wird vorgelesen, deutsche Bedeutung aus 4 Antworten wählen.
+- 🎙️ Sprechtraining: deutsche Vorgabe, englisches Wort ins Mikrofon sprechen.
+- 🔊 Muster-Aussprache beim Sprechtraining.
+Hinweis: Sprechen nutzt die im Browser verfügbare SpeechRecognition-Schnittstelle. Falls Safari/iOS diese auf dem jeweiligen Gerät nicht bereitstellt, zeigt die App einen Hinweis; der restliche Trainer funktioniert unverändert.
+
+Update in GitHub/main:
+- index.html
+- sw.js
+Danach 1–2 Minuten warten und neu laden.
