@@ -1,0 +1,4 @@
+V3.1 Korrektur
+Nur index.html und sw.js im bestehenden GitHub-Repository (main) ersetzen.
+Dann 1–2 Minuten warten und die Webseite neu laden.
+Die gespeicherten Vokabeln bleiben erhalten.
