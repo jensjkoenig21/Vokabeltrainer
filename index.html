@@ -2,7 +2,7 @@
 <html lang="de"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#3458db"><meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="./manifest.webmanifest"><title>Vokabeltrainer V3.9</title>
+<link rel="manifest" href="./manifest.webmanifest"><title>Vokabeltrainer V4.0</title>
 <style>
 :root{--bg:#f3f6fa;--card:#fff;--text:#162039;--muted:#687289;--blue:#3458db;--light:#edf1ff;--good:#17824b;--bad:#c73535;--line:#e2e7ef}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
@@ -23,8 +23,8 @@ input,select{width:100%;border:1px solid #d6dce7;border-radius:13px;padding:14px
 .result{text-align:center}.result .big{font-size:48px;font-weight:900}
 nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding:7px 5px calc(7px + env(safe-area-inset-bottom));z-index:10}
 nav button{flex:1;background:#fff;color:#626c80;padding:7px 2px;font-size:12px}nav button.active{color:var(--blue)}
-.matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center}.matchword{width:100%;min-height:58px;margin:5px 0;padding:8px;background:#f6f7fa;color:var(--text);border:2px solid transparent}.matchword.selected{border-color:var(--blue);background:#edf1ff}.matchword.matched{background:#e9f8f0;color:var(--good);opacity:.6}.matchword.wrong{background:#fff0f0;color:var(--bad)}#matchInfo{text-align:center;margin-top:10px}#handCanvas{display:block;width:100%;height:230px;background:white;border:3px solid #9db7ff;border-radius:18px;touch-action:none;box-sizing:border-box}.handbuttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.handbuttons button{width:100%}.choice,.matchword{white-space:normal!important;overflow-wrap:anywhere;height:auto!important}.smalltile{font-size:15px!important;line-height:1.18}.tinytile{font-size:13px!important;line-height:1.14}</style></head><body>
-<header><h1>📚 Vokabeltrainer V3.9</h1><p>⭐ <span id="points">0</span> Punkte · 🔥 <span id="bestStreak">0</span></p></header>
+.matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center}.matchword{width:100%;min-height:58px;margin:5px 0;padding:8px;background:#f6f7fa;color:var(--text);border:2px solid transparent}.matchword.selected{border-color:var(--blue);background:#edf1ff}.matchword.matched{background:#e9f8f0;color:var(--good);opacity:.6}.matchword.wrong{background:#fff0f0;color:var(--bad)}#matchInfo{text-align:center;margin-top:10px}#handCanvas{display:block;width:100%;height:230px;background:white;border:3px solid #9db7ff;border-radius:18px;touch-action:none;box-sizing:border-box}.handbuttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.handbuttons button{width:100%}.choice,.matchword{white-space:normal!important;overflow-wrap:anywhere;height:auto!important}.smalltile{font-size:15px!important;line-height:1.18}.tinytile{font-size:13px!important;line-height:1.14}.storychoice.selected{border:2px solid var(--blue)!important;background:#edf1ff!important}</style></head><body>
+<header><h1>📚 Vokabeltrainer V4.0</h1><p>⭐ <span id="points">0</span> Punkte · 🔥 <span id="bestStreak">0</span></p></header>
 <main>
 <section id="home">
 <div class="card"><h2>Heute lernen</h2><div class="stats"><div><div class="num" id="total">0</div><div class="small">Vokabeln</div></div><div><div class="num" id="safe">0</div><div class="small">sicher</div></div><div><div class="num" id="hard">0</div><div class="small">schwierig</div></div></div><div class="progress"><div id="allProgress"></div></div></div>
@@ -34,6 +34,7 @@ nav button{flex:1;background:#fff;color:#626c80;padding:7px 2px;font-size:12px}n
 <button class="secondary mode" onclick="startMode('choice')">🔘 4 Antworten</button>
 <button class="secondary mode" onclick="startMode('errors')">❌ Fehlertraining</button>
 <button class="secondary mode" onclick="startMode('listen')">🎧 Hören</button>
+<button class="secondary mode" onclick="startListeningStory()">📖🎧 Hörverständnis</button>
 <button class="secondary mode" onclick="startMode('speak')">🎙️ Sprechen</button>
 <button class="secondary mode" onclick="startMode('match')">🧩 Paare finden</button>
 <button class="secondary mode" onclick="startMode('write')">✍️ Handschrift</button>
@@ -41,6 +42,17 @@ nav button{flex:1;background:#fff;color:#626c80;padding:7px 2px;font-size:12px}n
 </div><p class="small">10er-Runde: Schreiben und Auswahl gemischt. Klassenarbeit: 10 Schreibaufgaben, Auswertung erst am Ende.</p></div>
 <div class="card"><h2>Units</h2><div id="unitList"></div></div>
 </section>
+
+<section id="story" class="hidden">
+<div class="card">
+<h2>📖🎧 Hörverständnis</h2>
+<div class="row"><select id="storyUnit" onchange="newStory()"></select><select id="storyLevel" onchange="newStory()"><option value="easy">⭐ Leicht</option><option value="medium">⭐⭐ Mittel</option><option value="hard">⭐⭐⭐ Schwer</option></select></div>
+<p class="small">Hör genau zu. Der Text wird zunächst nicht angezeigt.</p>
+<div style="text-align:center;margin:14px 0"><button class="primary" onclick="playStory()">🔊 Geschichte anhören</button> <button class="secondary" onclick="playStory()">🔁 Noch einmal hören</button></div>
+<div id="storyQuestions"></div>
+<div id="storyReview" class="hidden"></div>
+<div class="row" style="margin-top:14px"><button class="secondary" onclick="newStory()">🎲 Neue Geschichte</button><button class="secondary" onclick="show('home')">← Zurück</button></div>
+</div></section>
 
 <section id="learn" class="hidden">
 <div class="card"><h2 id="modeTitle">🎓 Lernen</h2>
@@ -77,11 +89,75 @@ function norm(x){return String(x||'').trim().toLowerCase().replace(/[.!?]/g,'').
 function esc(x){return String(x).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function save(){localStorage.setItem('vt3',JSON.stringify(data));localStorage.setItem('v32points',String(data.points));renderHome()}
 function allWords(){return Object.values(data.units).flat()}
-function show(id){['home','learn','result','import','data'].forEach(x=>$(x).classList.toggle('hidden',x!==id));document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));if($('n-'+id))$('n-'+id).classList.add('active');if(id==='home')renderHome();if(id==='data')renderManage()}
+function show(id){['home','learn','result','import','data','story'].forEach(x=>$(x).classList.toggle('hidden',x!==id));document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));if($('n-'+id))$('n-'+id).classList.add('active');if(id==='home')renderHome();if(id==='data')renderManage()}
 function renderHome(){let a=allWords(),safe=a.filter(w=>(w.streak||0)>=3).length,hard=a.filter(w=>(w.wrong||0)>0&&(w.streak||0)<3).length;$('total').textContent=a.length;$('safe').textContent=safe;$('hard').textContent=hard;$('allProgress').style.width=(a.length?safe/a.length*100:0)+'%';$('points').textContent=data.points;$('bestStreak').textContent=data.bestStreak;$('unitList').innerHTML=Object.entries(data.units).map(([u,w])=>`<div class="unit"><b>${esc(u)}</b><div class="small">${w.length} Lernpaare · ${w.filter(x=>(x.streak||0)>=3).length} sicher</div></div>`).join('')||'<div class="small">Noch keine Vokabeln importiert.</div>';fillUnits()}
 function fillUnits(){let old=$('unitSelect').value;$('unitSelect').innerHTML='<option value="__all">Alle Units</option>'+Object.keys(data.units).map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');if([...$('unitSelect').options].some(o=>o.value===old))$('unitSelect').value=old}
 function selectedWords(){return $('unitSelect').value==='__all'?allWords():(data.units[$('unitSelect').value]||[])}
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+
+let storyState=null;
+const STORY={
+ names:['Tom','Alina','Linus','Emma','Ben','Mia'],
+ cities:['London','Berlin','Dortmund','Leipzig'],
+ animals:['dog','cat','bird','bee'],
+ things:['bike','book','boat','flower'],
+ places:['park','grass']
+};
+function storyWords(){
+ let u=$('storyUnit')?.value||'__all', a=u==='__all'?allWords():(data.units[u]||[]);
+ return new Set(a.map(w=>(w.en||'').toLowerCase()));
+}
+function pick(arr,used=null){let a=used?arr.filter(x=>x!==used):arr;return a[Math.floor(Math.random()*a.length)]}
+function startListeningStory(){
+ if(!allWords().length){alert('Bitte zuerst Vokabeln importieren.');return}
+ show('story');
+ let sel=$('storyUnit');sel.innerHTML='<option value="__all">Alle Units</option>'+Object.keys(data.units).map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');
+ newStory();
+}
+function newStory(){
+ let level=$('storyLevel').value, known=storyWords();
+ let name=pick(STORY.names), friend=pick(STORY.names,name), city=pick(STORY.cities), animal=pick(STORY.animals), thing=pick(STORY.things);
+ // Prefer nouns actually present in the selected vocabulary where possible.
+ let aa=STORY.animals.filter(x=>known.has(x));if(aa.length)animal=pick(aa);
+ let tt=STORY.things.filter(x=>known.has(x));if(tt.length)thing=pick(tt);
+ let age=pick(['ten','eleven','twelve']);
+ let sentences=[`${name} is ${age} years old.`,`${name} lives in ${city}.`,`${name} is in the park with ${friend}.`,`They can see a ${animal}.`,`${friend} has a ${thing}.`];
+ if(level!=='easy')sentences.push(`${name} can read a book on the grass.`,`${friend} can ride a bike.`);
+ if(level==='hard')sentences.push(`They talk to their friends in the park.`,`They have a picnic on the grass.`);
+ let text=sentences.join(' ');
+ let qs=[
+  {q:`How old is ${name}?`,a:age,opts:[age,...['ten','eleven','twelve'].filter(x=>x!==age)].slice(0,4)},
+  {q:`Where does ${name} live?`,a:city,opts:[city,...STORY.cities.filter(x=>x!==city)].slice(0,4)},
+  {q:'What animal can they see?',a:animal,opts:[animal,...STORY.animals.filter(x=>x!==animal)].slice(0,4)}
+ ];
+ if(level!=='easy')qs.push({q:`What does ${friend} have?`,a:`a ${thing}`,opts:[`a ${thing}`,...STORY.things.filter(x=>x!==thing).slice(0,3).map(x=>'a '+x)]});
+ if(level==='hard')qs.push({q:'Where do they have a picnic?',a:'on the grass',opts:['on the grass','on the boat','at school','in London']});
+ storyState={text,qs,answers:{},checked:false};
+ renderStoryQuestions();
+ $('storyReview').className='hidden';$('storyReview').innerHTML='';
+ setTimeout(playStory,250);
+}
+function renderStoryQuestions(){
+ let box=$('storyQuestions');box.innerHTML='<h3>Fragen</h3>'+storyState.qs.map((q,i)=>`<div class="unit"><b>${i+1}. ${esc(q.q)}</b><div>${shuffle(q.opts).map(o=>`<button class="choice storychoice" data-i="${i}" data-v="${esc(o)}" onclick="storyAnswer(this)">${esc(o)}</button>`).join('')}</div></div>`).join('')+'<button class="primary" style="width:100%;margin-top:14px" onclick="checkStory()">✓ Antworten prüfen</button>';
+}
+function storyAnswer(b){
+ let i=+b.dataset.i;storyState.answers[i]=b.dataset.v;
+ document.querySelectorAll(`.storychoice[data-i="${i}"]`).forEach(x=>x.classList.remove('selected'));
+ b.classList.add('selected');b.style.borderColor='var(--blue)';b.style.background='#edf1ff';
+}
+function checkStory(){
+ if(Object.keys(storyState.answers).length<storyState.qs.length){alert('Bitte beantworte zuerst alle Fragen.');return}
+ let right=0;
+ storyState.qs.forEach((q,i)=>{let ok=storyState.answers[i]===q.a;if(ok)right++;document.querySelectorAll(`.storychoice[data-i="${i}"]`).forEach(b=>{b.disabled=true;if(b.dataset.v===q.a)b.classList.add('correct');else if(b.dataset.v===storyState.answers[i])b.classList.add('wrong')})});
+ data.points+=right*2;save();renderHome();
+ let r=$('storyReview');r.className='';r.innerHTML=`<div class="feedback ${right===storyState.qs.length?'good':'bad'}">${right}/${storyState.qs.length} richtig · ⭐ +${right*2} Punkte</div><div class="card" style="background:#f6f7fa"><b>📖 Hörtext</b><p style="line-height:1.65">${esc(storyState.text)}</p><b>Lösungen</b>${storyState.qs.map((q,i)=>`<p>${i+1}. ${esc(q.q)} → <b>${esc(q.a)}</b></p>`).join('')}</div>`;
+ r.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function playStory(){
+ if(!storyState||!('speechSynthesis'in window))return;
+ speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(storyState.text);u.lang='en-GB';u.rate=.78;speechSynthesis.speak(u);
+}
+
 const titles={normal:'▶️ Lernen',ten:'🎯 10er-Runde',choice:'🔘 4 Antworten',errors:'❌ Fehlertraining',listen:'🎧 Hörtraining',speak:'🎙️ Sprechtraining',match:'🧩 Paare finden',write:'✍️ Handschrift',test:'📝 Klassenarbeit'};
 function startMode(m){if(!allWords().length){alert('Bitte zuerst Vokabeln importieren.');return}mode=m;show('learn');$('modeTitle').textContent=titles[m];fillUnits();if(m==='match')startMatch();else buildQueue()}
 function restartMode(){if(!$('learn').classList.contains('hidden')){if(mode==='match')startMatch();else buildQueue()}}
@@ -176,6 +252,6 @@ function renderManage(){$('manage').innerHTML=Object.entries(data.units).map(([u
 function resetUnit(u){if(confirm('Lernstand dieser Unit zurücksetzen?')){data.units[u].forEach(w=>{w.streak=0;w.wrong=0});save();renderManage()}}
 function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='vokabeltrainer-v32-backup.json';a.click()}
 $('restore').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.units)throw 0;data=x;save();renderManage();alert('Sicherung wiederhergestellt.')}catch(e){alert('Ungültige Sicherung.')}};r.readAsText(f)})
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=39').catch(()=>{}));
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=40').catch(()=>{}));
 renderHome();
 </script></body></html>
