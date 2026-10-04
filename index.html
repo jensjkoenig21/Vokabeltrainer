@@ -2,7 +2,7 @@
 <html lang="de"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#3458db"><meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="./manifest.webmanifest"><title>Vokabeltrainer V3.7</title>
+<link rel="manifest" href="./manifest.webmanifest"><title>Vokabeltrainer V3.8</title>
 <style>
 :root{--bg:#f3f6fa;--card:#fff;--text:#162039;--muted:#687289;--blue:#3458db;--light:#edf1ff;--good:#17824b;--bad:#c73535;--line:#e2e7ef}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
@@ -23,8 +23,8 @@ input,select{width:100%;border:1px solid #d6dce7;border-radius:13px;padding:14px
 .result{text-align:center}.result .big{font-size:48px;font-weight:900}
 nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding:7px 5px calc(7px + env(safe-area-inset-bottom));z-index:10}
 nav button{flex:1;background:#fff;color:#626c80;padding:7px 2px;font-size:12px}nav button.active{color:var(--blue)}
-.matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center}.matchword{width:100%;min-height:58px;margin:5px 0;padding:8px;background:#f6f7fa;color:var(--text);border:2px solid transparent}.matchword.selected{border-color:var(--blue);background:#edf1ff}.matchword.matched{background:#e9f8f0;color:var(--good);opacity:.6}.matchword.wrong{background:#fff0f0;color:var(--bad)}#matchInfo{text-align:center;margin-top:10px}#handCanvas{display:block;width:100%;height:230px;background:white;border:3px solid #9db7ff;border-radius:18px;touch-action:none;box-sizing:border-box}.handbuttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.handbuttons button{width:100%}</style></head><body>
-<header><h1>📚 Vokabeltrainer V3.7</h1><p>⭐ <span id="points">0</span> Punkte · 🔥 <span id="bestStreak">0</span></p></header>
+.matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center}.matchword{width:100%;min-height:58px;margin:5px 0;padding:8px;background:#f6f7fa;color:var(--text);border:2px solid transparent}.matchword.selected{border-color:var(--blue);background:#edf1ff}.matchword.matched{background:#e9f8f0;color:var(--good);opacity:.6}.matchword.wrong{background:#fff0f0;color:var(--bad)}#matchInfo{text-align:center;margin-top:10px}#handCanvas{display:block;width:100%;height:230px;background:white;border:3px solid #9db7ff;border-radius:18px;touch-action:none;box-sizing:border-box}.handbuttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.handbuttons button{width:100%}.choice,.matchword{white-space:normal!important;overflow-wrap:anywhere;height:auto!important}.smalltile{font-size:15px!important;line-height:1.18}.tinytile{font-size:13px!important;line-height:1.14}</style></head><body>
+<header><h1>📚 Vokabeltrainer V3.8</h1><p>⭐ <span id="points">0</span> Punkte · 🔥 <span id="bestStreak">0</span></p></header>
 <main>
 <section id="home">
 <div class="card"><h2>Heute lernen</h2><div class="stats"><div><div class="num" id="total">0</div><div class="small">Vokabeln</div></div><div><div class="num" id="safe">0</div><div class="small">sicher</div></div><div><div class="num" id="hard">0</div><div class="small">schwierig</div></div></div><div class="progress"><div id="allProgress"></div></div></div>
@@ -85,7 +85,7 @@ function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
 const titles={normal:'▶️ Lernen',ten:'🎯 10er-Runde',choice:'🔘 4 Antworten',errors:'❌ Fehlertraining',listen:'🎧 Hörtraining',speak:'🎙️ Sprechtraining',match:'🧩 Paare finden',write:'✍️ Handschrift',test:'📝 Klassenarbeit'};
 function startMode(m){if(!allWords().length){alert('Bitte zuerst Vokabeln importieren.');return}mode=m;show('learn');$('modeTitle').textContent=titles[m];fillUnits();if(m==='match')startMatch();else buildQueue()}
 function restartMode(){if(!$('learn').classList.contains('hidden')){if(mode==='match')startMatch();else buildQueue()}}
-function buildQueue(){let a=selectedWords();if(mode==='errors'){let e=a.filter(w=>(w.wrong||0)>0||(w.streak||0)<2);a=e.length?e:a}queue=shuffle(a);if(mode==='ten'||mode==='test')queue=queue.slice(0,Math.min(10,queue.length));pos=0;session={right:0,wrong:0,streak:0,details:[]};nextQuestion()}
+function buildQueue(){let a=selectedWords();if(mode==='write')a=a.filter(w=>/^[A-Za-zÀ-ÖØ-öø-ÿ'’-]+$/.test((w.en||'').trim()));if(mode==='errors'){let e=a.filter(w=>(w.wrong||0)>0||(w.streak||0)<2);a=e.length?e:a}queue=shuffle(a);if(mode==='ten'||mode==='test')queue=queue.slice(0,Math.min(10,queue.length));pos=0;session={right:0,wrong:0,streak:0,details:[]};if(mode==='write'&&!queue.length){alert('In dieser Auswahl gibt es keine einzelnen englischen Wörter für die Handschriftübung.');show('home');return}nextQuestion()}
 function nextQuestion(){
  if(pos>=queue.length){finish(true);return}
  current=queue[pos++];answered=false;
@@ -108,11 +108,12 @@ function nextQuestion(){
    $('choices').classList.toggle('hidden',!mc);
    $('speakArea').classList.toggle('hidden',mode!=='speak');
    $('writeArea').classList.toggle('hidden',mc||mode==='speak');
-   if(mc)renderChoices(); else if(mode!=='speak')setTimeout(()=>$('answer').focus(),30);
+   if(mc){renderChoices();setTimeout(()=>document.querySelectorAll('#choices button').forEach(fitTile),0)} else if(mode!=='speak')setTimeout(()=>$('answer').focus(),30);
  }
  updateSession();
  if(mode==='listen')setTimeout(speak,300);
 }function expected(){return current._dir==='de-en'?current.en:current.de}
+function fitTile(el){let n=(el.textContent||'').length;if(n>45)el.classList.add('tinytile');else if(n>25)el.classList.add('smalltile')}
 function renderChoices(){let correct=expected(),others=selectedWords().filter(w=>w!==current).map(w=>current._dir==='de-en'?w.en:w.de);others=shuffle([...new Set(others.filter(x=>norm(x)!==norm(correct)))]).slice(0,3);let opts=shuffle([correct,...others]);$('choices').innerHTML=opts.map(x=>`<button class="choice" onclick='choose(this,${JSON.stringify(x)})'>${esc(x)}</button>`).join('')}
 function choose(btn,val){if(answered)return;answered=true;let ok=norm(val)===norm(expected());document.querySelectorAll('.choice').forEach(b=>{if(norm(b.textContent)===norm(expected()))b.classList.add('correct')});if(!ok)btn.classList.add('wrong');record(ok,val);setTimeout(nextQuestion,800)}
 function alternatives(x){return String(x).split(/\s*(?:\/|\bor\b)\s*/i).map(norm).filter(Boolean)}
@@ -141,7 +142,7 @@ document.addEventListener('DOMContentLoaded',setupHand);
 
 let matchState=null;
 function startMatch(){let a=shuffle(selectedWords());if(a.length<4){alert('Mindestens 4 Vokabeln nötig.');show('home');return}session={right:0,wrong:0,streak:0,details:[]};matchState={pairs:a.slice(0,4),de:null,en:null,done:0};$('matchArea').classList.remove('hidden');$('writeArea').classList.add('hidden');$('choices').classList.add('hidden');$('speakArea').classList.add('hidden');$('speaker').classList.add('hidden');$('feedback').className='hidden';$('next').classList.add('hidden');$('prompt').textContent='Finde die passenden Paare.';$('questionWord').textContent='🧩';renderMatch()}
-function renderMatch(){let d=shuffle(matchState.pairs.map((w,i)=>({t:w.de,i}))),e=shuffle(matchState.pairs.map((w,i)=>({t:w.en,i})));$('matchDE').innerHTML=d.map(x=>`<button class="matchword" data-side="de" onclick="pickMatch(this,'de',${x.i})">${esc(x.t)}</button>`).join('');$('matchEN').innerHTML=e.map(x=>`<button class="matchword" data-side="en" onclick="pickMatch(this,'en',${x.i})">${esc(x.t)}</button>`).join('');$('matchInfo').textContent='0 von 4 Paaren gefunden'}
+function renderMatch(){let d=shuffle(matchState.pairs.map((w,i)=>({t:w.de,i}))),e=shuffle(matchState.pairs.map((w,i)=>({t:w.en,i})));$('matchDE').innerHTML=d.map(x=>`<button class="matchword" data-side="de" onclick="pickMatch(this,'de',${x.i})">${esc(x.t)}</button>`).join('');$('matchEN').innerHTML=e.map(x=>`<button class="matchword" data-side="en" onclick="pickMatch(this,'en',${x.i})">${esc(x.t)}</button>`).join('');$('matchInfo').textContent='0 von 4 Paaren gefunden';document.querySelectorAll('#matchArea .matchword').forEach(fitTile)}
 function pickMatch(b,side,i){if(b.classList.contains('matched'))return;document.querySelectorAll(`.matchword[data-side="${side}"]`).forEach(x=>x.classList.remove('selected'));b.classList.add('selected');matchState[side]={b,i};if(!matchState.de||!matchState.en)return;let d=matchState.de,e=matchState.en;if(d.i===e.i){d.b.classList.remove('selected');e.b.classList.remove('selected');d.b.classList.add('matched');e.b.classList.add('matched');matchState.done++;session.right++;data.points+=10;let w=matchState.pairs[d.i];w.streak=(w.streak||0)+1;save();$('matchInfo').textContent=`${matchState.done} von 4 Paaren gefunden`;matchState.de=matchState.en=null;if(matchState.done===4)setTimeout(()=>startMatch(),700)}else{session.wrong++;d.b.classList.add('wrong');e.b.classList.add('wrong');setTimeout(()=>{d.b.classList.remove('wrong','selected');e.b.classList.remove('wrong','selected')},450);matchState.de=matchState.en=null}}
 
 function startSpeech(){
@@ -175,6 +176,6 @@ function renderManage(){$('manage').innerHTML=Object.entries(data.units).map(([u
 function resetUnit(u){if(confirm('Lernstand dieser Unit zurücksetzen?')){data.units[u].forEach(w=>{w.streak=0;w.wrong=0});save();renderManage()}}
 function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='vokabeltrainer-v32-backup.json';a.click()}
 $('restore').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.units)throw 0;data=x;save();renderManage();alert('Sicherung wiederhergestellt.')}catch(e){alert('Ungültige Sicherung.')}};r.readAsText(f)})
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=37').catch(()=>{}));
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=38').catch(()=>{}));
 renderHome();
 </script></body></html>
