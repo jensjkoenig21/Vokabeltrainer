@@ -2,7 +2,7 @@
 <html lang="de"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#3458db"><meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="./manifest.webmanifest"><title>Vokabeltrainer V3.6</title>
+<link rel="manifest" href="./manifest.webmanifest"><title>Vokabeltrainer V3.7</title>
 <style>
 :root{--bg:#f3f6fa;--card:#fff;--text:#162039;--muted:#687289;--blue:#3458db;--light:#edf1ff;--good:#17824b;--bad:#c73535;--line:#e2e7ef}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
@@ -23,8 +23,8 @@ input,select{width:100%;border:1px solid #d6dce7;border-radius:13px;padding:14px
 .result{text-align:center}.result .big{font-size:48px;font-weight:900}
 nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding:7px 5px calc(7px + env(safe-area-inset-bottom));z-index:10}
 nav button{flex:1;background:#fff;color:#626c80;padding:7px 2px;font-size:12px}nav button.active{color:var(--blue)}
-.matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center}.matchword{width:100%;min-height:58px;margin:5px 0;padding:8px;background:#f6f7fa;color:var(--text);border:2px solid transparent}.matchword.selected{border-color:var(--blue);background:#edf1ff}.matchword.matched{background:#e9f8f0;color:var(--good);opacity:.6}.matchword.wrong{background:#fff0f0;color:var(--bad)}#matchInfo{text-align:center;margin-top:10px}</style></head><body>
-<header><h1>📚 Vokabeltrainer V3.6</h1><p>⭐ <span id="points">0</span> Punkte · 🔥 <span id="bestStreak">0</span></p></header>
+.matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center}.matchword{width:100%;min-height:58px;margin:5px 0;padding:8px;background:#f6f7fa;color:var(--text);border:2px solid transparent}.matchword.selected{border-color:var(--blue);background:#edf1ff}.matchword.matched{background:#e9f8f0;color:var(--good);opacity:.6}.matchword.wrong{background:#fff0f0;color:var(--bad)}#matchInfo{text-align:center;margin-top:10px}#handCanvas{display:block;width:100%;height:230px;background:white;border:3px solid #9db7ff;border-radius:18px;touch-action:none;box-sizing:border-box}.handbuttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.handbuttons button{width:100%}</style></head><body>
+<header><h1>📚 Vokabeltrainer V3.7</h1><p>⭐ <span id="points">0</span> Punkte · 🔥 <span id="bestStreak">0</span></p></header>
 <main>
 <section id="home">
 <div class="card"><h2>Heute lernen</h2><div class="stats"><div><div class="num" id="total">0</div><div class="small">Vokabeln</div></div><div><div class="num" id="safe">0</div><div class="small">sicher</div></div><div><div class="num" id="hard">0</div><div class="small">schwierig</div></div></div><div class="progress"><div id="allProgress"></div></div></div>
@@ -36,7 +36,7 @@ nav button{flex:1;background:#fff;color:#626c80;padding:7px 2px;font-size:12px}n
 <button class="secondary mode" onclick="startMode('listen')">🎧 Hören</button>
 <button class="secondary mode" onclick="startMode('speak')">🎙️ Sprechen</button>
 <button class="secondary mode" onclick="startMode('match')">🧩 Paare finden</button>
-<button class="secondary mode" onclick="startMode('write')">✍️ Schreiben</button>
+<button class="secondary mode" onclick="startMode('write')">✍️ Handschrift</button>
 <button class="secondary mode wide" onclick="startMode('test')">📝 Klassenarbeit</button>
 </div><p class="small">10er-Runde: Schreiben und Auswahl gemischt. Klassenarbeit: 10 Schreibaufgaben, Auswertung erst am Ende.</p></div>
 <div class="card"><h2>Units</h2><div id="unitList"></div></div>
@@ -47,6 +47,13 @@ nav button{flex:1;background:#fff;color:#626c80;padding:7px 2px;font-size:12px}n
 <div class="row"><select id="unitSelect" onchange="restartMode()"></select><select id="direction"><option value="de-en">Deutsch → Englisch</option><option value="en-de">Englisch → Deutsch</option><option value="mix">Gemischt</option></select></div>
 <div class="progress"><div id="sessionProgress"></div></div><div id="sessionInfo" class="small" style="margin-top:7px"></div>
 <div class="question"><div id="prompt" class="prompt"></div><div class="word" id="questionWord">–</div><button id="speaker" class="secondary speaker hidden" onclick="speak()">🔊 Anhören</button>
+<div id="handArea" class="hidden">
+<div class="small" style="text-align:center;margin-bottom:8px">Mit Finger oder Apple Pencil schreiben</div>
+<canvas id="handCanvas" width="700" height="360" aria-label="Handschriftfeld"></canvas>
+<div class="handbuttons"><button class="secondary" onclick="clearHand()">↩️ Löschen</button><button class="primary" onclick="revealHand()">✓ Lösung prüfen</button></div>
+<div id="handSolution" class="hidden feedback"></div>
+<div id="handJudge" class="hidden handbuttons"><button class="secondary" onclick="judgeHand(false)">❌ Noch üben</button><button class="primary" onclick="judgeHand(true)">✓ Richtig</button></div>
+</div>
 <div id="matchArea" class="hidden"><div class="matchgrid"><div><b>🇩🇪 Deutsch</b><div id="matchDE"></div></div><div><b>🇬🇧 Englisch</b><div id="matchEN"></div></div></div><div id="matchInfo" class="small"></div></div><div id="speakArea" class="hidden"><button id="micBtn" class="primary" style="width:100%" onclick="startSpeech()">🎙️ Jetzt sprechen</button><div id="speechStatus" class="small" style="margin:12px 0"></div><button class="secondary" style="width:100%" onclick="speak()">🔊 Muster anhören</button></div>
 <div id="writeArea"><input id="answer" autocapitalize="none" spellcheck="false" placeholder="Antwort eingeben …"><button id="check" class="primary" style="width:100%;margin-top:10px" onclick="checkWritten()">Prüfen</button></div>
 <div id="choices" class="hidden"></div><div id="feedback" class="hidden"></div><button id="next" class="secondary hidden" style="width:100%" onclick="nextQuestion()">Weiter</button>
@@ -75,7 +82,7 @@ function renderHome(){let a=allWords(),safe=a.filter(w=>(w.streak||0)>=3).length
 function fillUnits(){let old=$('unitSelect').value;$('unitSelect').innerHTML='<option value="__all">Alle Units</option>'+Object.keys(data.units).map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');if([...$('unitSelect').options].some(o=>o.value===old))$('unitSelect').value=old}
 function selectedWords(){return $('unitSelect').value==='__all'?allWords():(data.units[$('unitSelect').value]||[])}
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
-const titles={normal:'▶️ Lernen',ten:'🎯 10er-Runde',choice:'🔘 4 Antworten',errors:'❌ Fehlertraining',listen:'🎧 Hörtraining',speak:'🎙️ Sprechtraining',match:'🧩 Paare finden',write:'✍️ Schreiben',test:'📝 Klassenarbeit'};
+const titles={normal:'▶️ Lernen',ten:'🎯 10er-Runde',choice:'🔘 4 Antworten',errors:'❌ Fehlertraining',listen:'🎧 Hörtraining',speak:'🎙️ Sprechtraining',match:'🧩 Paare finden',write:'✍️ Handschrift',test:'📝 Klassenarbeit'};
 function startMode(m){if(!allWords().length){alert('Bitte zuerst Vokabeln importieren.');return}mode=m;show('learn');$('modeTitle').textContent=titles[m];fillUnits();if(m==='match')startMatch();else buildQueue()}
 function restartMode(){if(!$('learn').classList.contains('hidden')){if(mode==='match')startMatch();else buildQueue()}}
 function buildQueue(){let a=selectedWords();if(mode==='errors'){let e=a.filter(w=>(w.wrong||0)>0||(w.streak||0)<2);a=e.length?e:a}queue=shuffle(a);if(mode==='ten'||mode==='test')queue=queue.slice(0,Math.min(10,queue.length));pos=0;session={right:0,wrong:0,streak:0,details:[]};nextQuestion()}
@@ -90,18 +97,14 @@ function nextQuestion(){
  $('prompt').textContent=mode==='listen'?'Hör genau zu – was bedeutet das?':mode==='speak'?'Sprich das englische Wort:':mode==='write'?'Schreibe die englische Vokabel:':d==='de-en'?'Wie heißt das auf Englisch?':'Was bedeutet das auf Deutsch?';
  $('questionWord').textContent=mode==='listen'?'🎧':(d==='de-en'?current.de:current.en);
  $('speaker').classList.toggle('hidden',mode==='listen'||mode==='speak'||d!=='en-de');
- $('feedback').className='hidden';$('next').classList.add('hidden');$('answer').value='';$('speechStatus').textContent='';
+ $('feedback').className='hidden';$('next').classList.add('hidden');$('answer').value='';$('speechStatus').textContent='';$('handArea').classList.add('hidden');
  let mc=mode==='choice'||mode==='listen'||(mode==='ten'&&pos%2===0);
  $('matchArea').classList.add('hidden');
  if(mode==='write'){
-   $('choices').classList.add('hidden');
-   $('speakArea').classList.add('hidden');
-   $('writeArea').classList.remove('hidden');
-   $('check').classList.remove('hidden');
-   $('answer').classList.remove('hidden');
-   $('answer').placeholder='Englisches Wort schreiben …';
-   setTimeout(()=>$('answer').focus(),30);
+   $('choices').classList.add('hidden');$('speakArea').classList.add('hidden');$('writeArea').classList.add('hidden');
+   $('handArea').classList.remove('hidden');clearHand();
  }else{
+   $('handArea').classList.add('hidden');
    $('choices').classList.toggle('hidden',!mc);
    $('speakArea').classList.toggle('hidden',mode!=='speak');
    $('writeArea').classList.toggle('hidden',mc||mode==='speak');
@@ -120,6 +123,21 @@ function updateSession(){$('sessionInfo').textContent=`${pos} / ${queue.length} 
 function finish(completed){if(!session.details.length){show('home');return}show('result');let n=session.details.length,p=Math.round(session.right/n*100);$('resultTitle').textContent=mode==='test'?'📝 Klassenarbeit beendet':completed?'🎉 Runde geschafft':'Runde beendet';$('resultScore').textContent=`${session.right}/${n}`;$('resultText').textContent=`${p}% richtig · ${session.wrong} Fehler · ⭐ ${data.points} Punkte insgesamt`;mode='normal'}
 function speak(){if(!current||!('speechSynthesis'in window))return;let u=new SpeechSynthesisUtterance(current.en);u.lang='en-GB';u.rate=.85;speechSynthesis.cancel();speechSynthesis.speak(u)}
 $('answer').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();answered?nextQuestion():checkWritten()}})
+
+
+let handDrawing=false,handCtx=null,handLast=null;
+function setupHand(){
+ const c=$('handCanvas'); if(!c)return;
+ handCtx=c.getContext('2d');handCtx.lineCap='round';handCtx.lineJoin='round';handCtx.lineWidth=6;handCtx.strokeStyle='#17213b';
+ const pt=e=>{let r=c.getBoundingClientRect();return{x:(e.clientX-r.left)*c.width/r.width,y:(e.clientY-r.top)*c.height/r.height}};
+ c.onpointerdown=e=>{e.preventDefault();handDrawing=true;handLast=pt(e);try{c.setPointerCapture(e.pointerId)}catch(_){}};
+ c.onpointermove=e=>{if(!handDrawing)return;e.preventDefault();let q=pt(e);handCtx.beginPath();handCtx.moveTo(handLast.x,handLast.y);handCtx.lineTo(q.x,q.y);handCtx.stroke();handLast=q};
+ c.onpointerup=c.onpointercancel=e=>{handDrawing=false;handLast=null};
+}
+function clearHand(){const c=$('handCanvas');if(!handCtx)setupHand();handCtx.clearRect(0,0,c.width,c.height);$('handSolution').className='hidden feedback';$('handJudge').classList.add('hidden')}
+function revealHand(){let exp=current.en;$('handSolution').innerHTML='Richtige Lösung: <b>'+esc(exp)+'</b><br><span class="small">Vergleiche mit deiner Handschrift.</span>';$('handSolution').className='feedback good';$('handJudge').classList.remove('hidden')}
+function judgeHand(ok){answered=true;record(ok,ok?current.en:'Handschrift – selbst bewertet');$('handJudge').classList.add('hidden');$('next').classList.remove('hidden')}
+document.addEventListener('DOMContentLoaded',setupHand);
 
 let matchState=null;
 function startMatch(){let a=shuffle(selectedWords());if(a.length<4){alert('Mindestens 4 Vokabeln nötig.');show('home');return}session={right:0,wrong:0,streak:0,details:[]};matchState={pairs:a.slice(0,4),de:null,en:null,done:0};$('matchArea').classList.remove('hidden');$('writeArea').classList.add('hidden');$('choices').classList.add('hidden');$('speakArea').classList.add('hidden');$('speaker').classList.add('hidden');$('feedback').className='hidden';$('next').classList.add('hidden');$('prompt').textContent='Finde die passenden Paare.';$('questionWord').textContent='🧩';renderMatch()}
@@ -157,6 +175,6 @@ function renderManage(){$('manage').innerHTML=Object.entries(data.units).map(([u
 function resetUnit(u){if(confirm('Lernstand dieser Unit zurücksetzen?')){data.units[u].forEach(w=>{w.streak=0;w.wrong=0});save();renderManage()}}
 function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='vokabeltrainer-v32-backup.json';a.click()}
 $('restore').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.units)throw 0;data=x;save();renderManage();alert('Sicherung wiederhergestellt.')}catch(e){alert('Ungültige Sicherung.')}};r.readAsText(f)})
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=32').catch(()=>{}));
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=37').catch(()=>{}));
 renderHome();
 </script></body></html>
