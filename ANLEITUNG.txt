@@ -1,6 +1,1 @@
-VOKABELTRAINER – DATEIEN FÜR GITHUB PAGES
-
-Alle Dateien dieses Ordners gemeinsam in ein GitHub-Repository hochladen.
-Wichtig: index.html, manifest.webmanifest, sw.js, icon-192.png, icon-512.png und .nojekyll.
-
-Die Datei Unit_1_Hello_London.tsv kann nach dem Start direkt über „Import“ geladen werden.
+V3.5: index.html und sw.js in GitHub/main ersetzen. Neu: 🧩 Paare finden und ✍️ eigener Schreibmodus.
