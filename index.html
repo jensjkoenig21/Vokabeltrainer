@@ -2,7 +2,7 @@
 <html lang="de"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#3458db"><meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="./manifest.webmanifest"><title>Vokabeltrainer V3.5</title>
+<link rel="manifest" href="./manifest.webmanifest"><title>Vokabeltrainer V3.6</title>
 <style>
 :root{--bg:#f3f6fa;--card:#fff;--text:#162039;--muted:#687289;--blue:#3458db;--light:#edf1ff;--good:#17824b;--bad:#c73535;--line:#e2e7ef}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
@@ -24,7 +24,7 @@ input,select{width:100%;border:1px solid #d6dce7;border-radius:13px;padding:14px
 nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding:7px 5px calc(7px + env(safe-area-inset-bottom));z-index:10}
 nav button{flex:1;background:#fff;color:#626c80;padding:7px 2px;font-size:12px}nav button.active{color:var(--blue)}
 .matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center}.matchword{width:100%;min-height:58px;margin:5px 0;padding:8px;background:#f6f7fa;color:var(--text);border:2px solid transparent}.matchword.selected{border-color:var(--blue);background:#edf1ff}.matchword.matched{background:#e9f8f0;color:var(--good);opacity:.6}.matchword.wrong{background:#fff0f0;color:var(--bad)}#matchInfo{text-align:center;margin-top:10px}</style></head><body>
-<header><h1>📚 Vokabeltrainer V3.5</h1><p>⭐ <span id="points">0</span> Punkte · 🔥 <span id="bestStreak">0</span></p></header>
+<header><h1>📚 Vokabeltrainer V3.6</h1><p>⭐ <span id="points">0</span> Punkte · 🔥 <span id="bestStreak">0</span></p></header>
 <main>
 <section id="home">
 <div class="card"><h2>Heute lernen</h2><div class="stats"><div><div class="num" id="total">0</div><div class="small">Vokabeln</div></div><div><div class="num" id="safe">0</div><div class="small">sicher</div></div><div><div class="num" id="hard">0</div><div class="small">schwierig</div></div></div><div class="progress"><div id="allProgress"></div></div></div>
@@ -87,15 +87,26 @@ function nextQuestion(){
  if(mode==='speak'||mode==='write') d='de-en';
  if(d==='mix')d=Math.random()<.5?'de-en':'en-de';
  current._dir=d;
- $('prompt').textContent=mode==='listen'?'Hör genau zu – was bedeutet das?':mode==='speak'?'Sprich das englische Wort:':d==='de-en'?'Wie heißt das auf Englisch?':'Was bedeutet das auf Deutsch?';
+ $('prompt').textContent=mode==='listen'?'Hör genau zu – was bedeutet das?':mode==='speak'?'Sprich das englische Wort:':mode==='write'?'Schreibe die englische Vokabel:':d==='de-en'?'Wie heißt das auf Englisch?':'Was bedeutet das auf Deutsch?';
  $('questionWord').textContent=mode==='listen'?'🎧':(d==='de-en'?current.de:current.en);
  $('speaker').classList.toggle('hidden',mode==='listen'||mode==='speak'||d!=='en-de');
  $('feedback').className='hidden';$('next').classList.add('hidden');$('answer').value='';$('speechStatus').textContent='';
  let mc=mode==='choice'||mode==='listen'||(mode==='ten'&&pos%2===0);
- $('matchArea').classList.add('hidden');$('choices').classList.toggle('hidden',!mc);
- $('speakArea').classList.toggle('hidden',mode!=='speak');
- $('writeArea').classList.toggle('hidden',mc||mode==='speak');
- if(mc)renderChoices(); else if(mode!=='speak')setTimeout(()=>$('answer').focus(),30);
+ $('matchArea').classList.add('hidden');
+ if(mode==='write'){
+   $('choices').classList.add('hidden');
+   $('speakArea').classList.add('hidden');
+   $('writeArea').classList.remove('hidden');
+   $('check').classList.remove('hidden');
+   $('answer').classList.remove('hidden');
+   $('answer').placeholder='Englisches Wort schreiben …';
+   setTimeout(()=>$('answer').focus(),30);
+ }else{
+   $('choices').classList.toggle('hidden',!mc);
+   $('speakArea').classList.toggle('hidden',mode!=='speak');
+   $('writeArea').classList.toggle('hidden',mc||mode==='speak');
+   if(mc)renderChoices(); else if(mode!=='speak')setTimeout(()=>$('answer').focus(),30);
+ }
  updateSession();
  if(mode==='listen')setTimeout(speak,300);
 }function expected(){return current._dir==='de-en'?current.en:current.de}

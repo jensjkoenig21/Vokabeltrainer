@@ -1,1 +1,9 @@
-V3.5: index.html und sw.js in GitHub/main ersetzen. Neu: 🧩 Paare finden und ✍️ eigener Schreibmodus.
+V3.6 – Schreibmodus korrigiert.
+Ursache: Der Schreibmodus hatte zwar Deutsch→Englisch erzwungen, aber keine eigene Anzeige-/Eingabelogik und erbte Zustände anderer Modi.
+Jetzt wird im Schreibmodus explizit:
+- die deutsche Vokabel angezeigt
+- nur das Texteingabefeld eingeblendet
+- die englische Antwort erwartet
+- Prüfen + Feedback + Weiter verwendet
+
+GitHub/main: index.html und sw.js ersetzen.
