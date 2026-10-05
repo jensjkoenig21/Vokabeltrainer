@@ -2,7 +2,7 @@
 <html lang="de"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#3458db"><meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="./manifest.webmanifest"><title>Vokabeltrainer V4.0</title>
+<link rel="manifest" href="./manifest.webmanifest"><title>Vokabeltrainer V4.1</title>
 <style>
 :root{--bg:#f3f6fa;--card:#fff;--text:#162039;--muted:#687289;--blue:#3458db;--light:#edf1ff;--good:#17824b;--bad:#c73535;--line:#e2e7ef}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
@@ -24,7 +24,7 @@ input,select{width:100%;border:1px solid #d6dce7;border-radius:13px;padding:14px
 nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding:7px 5px calc(7px + env(safe-area-inset-bottom));z-index:10}
 nav button{flex:1;background:#fff;color:#626c80;padding:7px 2px;font-size:12px}nav button.active{color:var(--blue)}
 .matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center}.matchword{width:100%;min-height:58px;margin:5px 0;padding:8px;background:#f6f7fa;color:var(--text);border:2px solid transparent}.matchword.selected{border-color:var(--blue);background:#edf1ff}.matchword.matched{background:#e9f8f0;color:var(--good);opacity:.6}.matchword.wrong{background:#fff0f0;color:var(--bad)}#matchInfo{text-align:center;margin-top:10px}#handCanvas{display:block;width:100%;height:230px;background:white;border:3px solid #9db7ff;border-radius:18px;touch-action:none;box-sizing:border-box}.handbuttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.handbuttons button{width:100%}.choice,.matchword{white-space:normal!important;overflow-wrap:anywhere;height:auto!important}.smalltile{font-size:15px!important;line-height:1.18}.tinytile{font-size:13px!important;line-height:1.14}.storychoice.selected{border:2px solid var(--blue)!important;background:#edf1ff!important}</style></head><body>
-<header><h1>📚 Vokabeltrainer V4.0</h1><p>⭐ <span id="points">0</span> Punkte · 🔥 <span id="bestStreak">0</span></p></header>
+<header><h1>📚 Vokabeltrainer V4.1</h1><p>⭐ <span id="points">0</span> Punkte · 🔥 <span id="bestStreak">0</span></p></header>
 <main>
 <section id="home">
 <div class="card"><h2>Heute lernen</h2><div class="stats"><div><div class="num" id="total">0</div><div class="small">Vokabeln</div></div><div><div class="num" id="safe">0</div><div class="small">sicher</div></div><div><div class="num" id="hard">0</div><div class="small">schwierig</div></div></div><div class="progress"><div id="allProgress"></div></div></div>
@@ -47,6 +47,7 @@ nav button{flex:1;background:#fff;color:#626c80;padding:7px 2px;font-size:12px}n
 <div class="card">
 <h2>📖🎧 Hörverständnis</h2>
 <div class="row"><select id="storyUnit" onchange="newStory()"></select><select id="storyLevel" onchange="newStory()"><option value="easy">⭐ Leicht</option><option value="medium">⭐⭐ Mittel</option><option value="hard">⭐⭐⭐ Schwer</option></select></div>
+<div class="row" style="margin-top:10px"><select id="britVoice" onchange="saveVoiceChoice()"><option value="">🇬🇧 Beste britische Stimme automatisch</option></select><button class="secondary" onclick="previewBritishVoice()">🔊 Stimme testen</button></div>
 <p class="small">Hör genau zu. Der Text wird zunächst nicht angezeigt.</p>
 <div style="text-align:center;margin:14px 0"><button class="primary" onclick="playStory()">🔊 Geschichte anhören</button> <button class="secondary" onclick="playStory()">🔁 Noch einmal hören</button></div>
 <div id="storyQuestions"></div>
@@ -111,6 +112,7 @@ function pick(arr,used=null){let a=used?arr.filter(x=>x!==used):arr;return a[Mat
 function startListeningStory(){
  if(!allWords().length){alert('Bitte zuerst Vokabeln importieren.');return}
  show('story');
+ loadBritishVoices();
  let sel=$('storyUnit');sel.innerHTML='<option value="__all">Alle Units</option>'+Object.keys(data.units).map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');
  newStory();
 }
@@ -153,10 +155,16 @@ function checkStory(){
  let r=$('storyReview');r.className='';r.innerHTML=`<div class="feedback ${right===storyState.qs.length?'good':'bad'}">${right}/${storyState.qs.length} richtig · ⭐ +${right*2} Punkte</div><div class="card" style="background:#f6f7fa"><b>📖 Hörtext</b><p style="line-height:1.65">${esc(storyState.text)}</p><b>Lösungen</b>${storyState.qs.map((q,i)=>`<p>${i+1}. ${esc(q.q)} → <b>${esc(q.a)}</b></p>`).join('')}</div>`;
  r.scrollIntoView({behavior:'smooth',block:'start'});
 }
-function playStory(){
- if(!storyState||!('speechSynthesis'in window))return;
- speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(storyState.text);u.lang='en-GB';u.rate=.78;speechSynthesis.speak(u);
-}
+let britishVoices=[];
+function voiceScore(v){let n=(v.name||'').toLowerCase(),score=0;if((v.lang||'').toLowerCase()==='en-gb')score+=100;if(/daniel|serena|kate|oliver|stephanie/.test(n))score+=30;if(/enhanced|premium|natural/.test(n))score+=20;if(/compact/.test(n))score-=10;return score}
+function loadBritishVoices(){if(!('speechSynthesis'in window))return;britishVoices=speechSynthesis.getVoices().filter(v=>(v.lang||'').toLowerCase().startsWith('en-gb')).sort((a,b)=>voiceScore(b)-voiceScore(a));let sel=$('britVoice');if(!sel)return;let saved=localStorage.getItem('vtBritishVoice')||'';sel.innerHTML='<option value="">🇬🇧 Beste britische Stimme automatisch</option>'+britishVoices.map(v=>`<option value="${esc(v.name)}">${esc(v.name)} (${esc(v.lang)})</option>`).join('');if([...sel.options].some(o=>o.value===saved))sel.value=saved}
+function saveVoiceChoice(){localStorage.setItem('vtBritishVoice',$('britVoice').value)}
+function getBritishVoice(){let chosen=$('britVoice')?.value||localStorage.getItem('vtBritishVoice')||'';return britishVoices.find(v=>v.name===chosen)||britishVoices[0]||speechSynthesis.getVoices().find(v=>(v.lang||'').toLowerCase().startsWith('en-gb'))||null}
+function speakBritishText(text,rate=.82){if(!('speechSynthesis'in window))return;speechSynthesis.cancel();let parts=(text.match(/[^.!?]+[.!?]+|[^.!?]+$/g)||[text]).map(x=>x.trim()).filter(Boolean),i=0,voice=getBritishVoice();function next(){if(i>=parts.length)return;let u=new SpeechSynthesisUtterance(parts[i++]);u.lang='en-GB';u.rate=rate;u.pitch=1;if(voice)u.voice=voice;u.onend=()=>setTimeout(next,260);speechSynthesis.speak(u)}next()}
+function previewBritishVoice(){speakBritishText('Hello! Welcome to your English listening practice. Listen carefully and have fun.',.82)}
+function playStory(){if(!storyState)return;speakBritishText(storyState.text,.80)}
+if('speechSynthesis'in window){speechSynthesis.onvoiceschanged=loadBritishVoices;setTimeout(loadBritishVoices,150)}
+
 
 const titles={normal:'▶️ Lernen',ten:'🎯 10er-Runde',choice:'🔘 4 Antworten',errors:'❌ Fehlertraining',listen:'🎧 Hörtraining',speak:'🎙️ Sprechtraining',match:'🧩 Paare finden',write:'✍️ Handschrift',test:'📝 Klassenarbeit'};
 function startMode(m){if(!allWords().length){alert('Bitte zuerst Vokabeln importieren.');return}mode=m;show('learn');$('modeTitle').textContent=titles[m];fillUnits();if(m==='match')startMatch();else buildQueue()}
@@ -252,6 +260,6 @@ function renderManage(){$('manage').innerHTML=Object.entries(data.units).map(([u
 function resetUnit(u){if(confirm('Lernstand dieser Unit zurücksetzen?')){data.units[u].forEach(w=>{w.streak=0;w.wrong=0});save();renderManage()}}
 function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='vokabeltrainer-v32-backup.json';a.click()}
 $('restore').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.units)throw 0;data=x;save();renderManage();alert('Sicherung wiederhergestellt.')}catch(e){alert('Ungültige Sicherung.')}};r.readAsText(f)})
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=40').catch(()=>{}));
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=41').catch(()=>{}));
 renderHome();
 </script></body></html>
