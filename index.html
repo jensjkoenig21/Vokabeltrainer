@@ -2,7 +2,7 @@
 <html lang="de"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#3458db"><meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="./manifest.webmanifest"><title>Vokabeltrainer V4.3</title>
+<link rel="manifest" href="./manifest.webmanifest"><title>Vokabeltrainer V4.4</title>
 <style>
 :root{--bg:#f3f6fa;--card:#fff;--text:#162039;--muted:#687289;--blue:#3458db;--light:#edf1ff;--good:#17824b;--bad:#c73535;--line:#e2e7ef}
 *{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
@@ -24,7 +24,7 @@ input,select{width:100%;border:1px solid #d6dce7;border-radius:13px;padding:14px
 nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding:7px 5px calc(7px + env(safe-area-inset-bottom));z-index:10}
 nav button{flex:1;background:#fff;color:#626c80;padding:7px 2px;font-size:12px}nav button.active{color:var(--blue)}
 .matchgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center}.matchword{width:100%;min-height:58px;margin:5px 0;padding:8px;background:#f6f7fa;color:var(--text);border:2px solid transparent}.matchword.selected{border-color:var(--blue);background:#edf1ff}.matchword.matched{background:#e9f8f0;color:var(--good);opacity:.6}.matchword.wrong{background:#fff0f0;color:var(--bad)}#matchInfo{text-align:center;margin-top:10px}#handCanvas{display:block;width:100%;height:230px;background:white;border:3px solid #9db7ff;border-radius:18px;touch-action:none;box-sizing:border-box}.handbuttons{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}.handbuttons button{width:100%}.choice,.matchword{white-space:normal!important;overflow-wrap:anywhere;height:auto!important}.smalltile{font-size:15px!important;line-height:1.18}.tinytile{font-size:13px!important;line-height:1.14}.storychoice.selected{border:2px solid var(--blue)!important;background:#edf1ff!important}.profilebar{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:15px}.profilebar select{font-size:15px;font-weight:700}.langnote{margin-top:8px;text-align:center}</style></head><body>
-<header><h1>📚 Vokabeltrainer V4.3</h1><p>⭐ <span id="points">0</span> Punkte · 🔥 <span id="bestStreak">0</span></p></header>
+<header><h1>📚 Vokabeltrainer V4.4</h1><p>⭐ <span id="points">0</span> Punkte · 🔥 <span id="bestStreak">0</span></p></header>
 <main>
 <section id="home">
 <div class="card"><h2>👤 Lernprofil & Sprache</h2><div class="profilebar"><select id="profileSelect" onchange="changeProfile(this.value)"><option value="son">👦 Sohn</option><option value="daughter">👧 Tochter</option></select><select id="languageSelect" onchange="changeLanguage(this.value)"><option value="en">🇬🇧 Englisch</option><option value="es">🇪🇸 Spanisch</option></select></div><div id="profileInfo" class="small langnote"></div></div>
@@ -59,7 +59,8 @@ nav button{flex:1;background:#fff;color:#626c80;padding:7px 2px;font-size:12px}n
 
 <section id="learn" class="hidden">
 <div class="card"><h2 id="modeTitle">🎓 Lernen</h2>
-<div class="row"><select id="unitSelect" onchange="restartMode()"></select><select id="direction"><option id="dirTo" value="de-en">Deutsch → Englisch</option><option id="dirFrom" value="en-de">Englisch → Deutsch</option><option value="mix">Gemischt</option></select></div>
+<div class="row"><select id="unitSelect" onchange="fillBlocks();restartMode()"></select><select id="direction"><option id="dirTo" value="de-en">Deutsch → Englisch</option><option id="dirFrom" value="en-de">Englisch → Deutsch</option><option value="mix">Gemischt</option></select></div>
+<div class="row" style="margin-top:10px"><select id="blockSelect" onchange="restartMode()"><option value="all">📚 Alle Lernpaare</option></select><div id="blockInfo" class="small" style="display:flex;align-items:center;padding:0 8px"></div></div>
 <div class="progress"><div id="sessionProgress"></div></div><div id="sessionInfo" class="small" style="margin-top:7px"></div>
 <div class="question"><div id="prompt" class="prompt"></div><div class="word" id="questionWord">–</div><button id="speaker" class="secondary speaker hidden" onclick="speak()">🔊 Anhören</button>
 <div id="handArea" class="hidden">
@@ -119,8 +120,12 @@ function save(){localStorage.setItem(storeKey(),JSON.stringify(data));if(activeP
 function allWords(){return Object.values(data.units).flat()}
 function show(id){['home','learn','result','import','data','story'].forEach(x=>$(x).classList.toggle('hidden',x!==id));document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));if($('n-'+id))$('n-'+id).classList.add('active');if(id==='home')renderHome();if(id==='data'){renderManage();loadSpanishVoices()}applyLanguageUI()}
 function renderHome(){applyLanguageUI();let a=allWords(),safe=a.filter(w=>(w.streak||0)>=3).length,hard=a.filter(w=>(w.wrong||0)>0&&(w.streak||0)<3).length;$('total').textContent=a.length;$('safe').textContent=safe;$('hard').textContent=hard;$('allProgress').style.width=(a.length?safe/a.length*100:0)+'%';$('points').textContent=data.points;$('bestStreak').textContent=data.bestStreak;$('unitList').innerHTML=Object.entries(data.units).map(([u,w])=>`<div class="unit"><b>${esc(u)}</b><div class="small">${w.length} Lernpaare · ${w.filter(x=>(x.streak||0)>=3).length} sicher</div></div>`).join('')||'<div class="small">Noch keine Vokabeln importiert.</div>';fillUnits()}
-function fillUnits(){let old=$('unitSelect').value;$('unitSelect').innerHTML='<option value="__all">Alle Units</option>'+Object.keys(data.units).map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');if([...$('unitSelect').options].some(o=>o.value===old))$('unitSelect').value=old}
-function selectedWords(){return $('unitSelect').value==='__all'?allWords():(data.units[$('unitSelect').value]||[])}
+function fillUnits(){let old=$('unitSelect').value;$('unitSelect').innerHTML='<option value="__all">Alle Units</option>'+Object.keys(data.units).map(u=>`<option value="${esc(u)}">${esc(u)}</option>`).join('');if([...$('unitSelect').options].some(o=>o.value===old))$('unitSelect').value=old;fillBlocks()}
+function baseSelectedWords(){return $('unitSelect').value==='__all'?allWords():(data.units[$('unitSelect').value]||[])}
+let randomBlockCache=null;
+function fillBlocks(){let sel=$('blockSelect');if(!sel)return;let a=baseSelectedWords(),old=sel.value||'all',html='<option value="all">📚 Alle ('+a.length+')</option>';for(let i=0;i<a.length;i+=20){let e=Math.min(i+20,a.length);html+=`<option value="block:${i}">📦 ${i+1}–${e}</option>`}if(a.length>20)html+='<option value="random">🎲 Zufällige 20</option>';sel.innerHTML=html;if([...sel.options].some(o=>o.value===old))sel.value=old;randomBlockCache=null;updateBlockInfo()}
+function updateBlockInfo(){let sel=$('blockSelect'),info=$('blockInfo');if(!sel||!info)return;info.textContent=sel.value==='random'?'20 neue Zufalls-Lernpaare pro Runde':sel.value==='all'?'gesamte Auswahl':'fester 20er-Block'}
+function selectedWords(){let a=baseSelectedWords(),v=$('blockSelect')?.value||'all';updateBlockInfo();if(v==='random'){if(!randomBlockCache)randomBlockCache=shuffle(a).slice(0,20);return randomBlockCache}if(v.startsWith('block:')){let i=Number(v.split(':')[1])||0;return a.slice(i,i+20)}return a}
 function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
 
 let storyState=null;
@@ -195,8 +200,8 @@ if('speechSynthesis'in window){speechSynthesis.addEventListener('voiceschanged',
 
 
 const titles={normal:'▶️ Lernen',ten:'🎯 10er-Runde',choice:'🔘 4 Antworten',errors:'❌ Fehlertraining',listen:'🎧 Hörtraining',sentences:'💬 Sätze üben',speak:'🎙️ Sprechtraining',match:'🧩 Paare finden',write:'✍️ Handschrift',test:'📝 Klassenarbeit'};
-function startMode(m){if(!allWords().length){alert('Bitte zuerst Vokabeln importieren.');return}mode=m;show('learn');$('modeTitle').textContent=titles[m];fillUnits();if(m==='match')startMatch();else buildQueue()}
-function restartMode(){if(!$('learn').classList.contains('hidden')){if(mode==='match')startMatch();else buildQueue()}}
+function startMode(m){randomBlockCache=null;if(!allWords().length){alert('Bitte zuerst Vokabeln importieren.');return}mode=m;show('learn');$('modeTitle').textContent=titles[m];fillUnits();if(m==='match')startMatch();else buildQueue()}
+function restartMode(){randomBlockCache=null;if(!$('learn').classList.contains('hidden')){if(mode==='match')startMatch();else buildQueue()}}
 function isSentence(w){let x=(w.en||'').trim();return /[.!?¿¡]/.test(x)||x.split(/\s+/).length>=4}
 function buildQueue(){let a=selectedWords();if(mode==='sentences')a=a.filter(isSentence);if(mode==='write')a=a.filter(w=>/^[A-Za-zÀ-ÖØ-öø-ÿ'’-]+$/.test((w.en||'').trim()));if(mode==='errors'){let e=a.filter(w=>(w.wrong||0)>0||(w.streak||0)<2);a=e.length?e:a}queue=shuffle(a);if(mode==='ten'||mode==='test')queue=queue.slice(0,Math.min(10,queue.length));pos=0;session={right:0,wrong:0,streak:0,details:[]};if(mode==='write'&&!queue.length){alert('In dieser Auswahl gibt es keine einzelnen Wörter für die Handschriftübung.');show('home');return}
 if(mode==='sentences'&&!queue.length){alert('In dieser Auswahl wurden keine Sätze gefunden.');show('home');return}
@@ -297,6 +302,6 @@ function renderManage(){$('manage').innerHTML=Object.entries(data.units).map(([u
 function resetUnit(u){if(confirm('Lernstand dieser Unit zurücksetzen?')){data.units[u].forEach(w=>{w.streak=0;w.wrong=0});save();renderManage()}}
 function backup(){let a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));a.download='vokabeltrainer-v32-backup.json';a.click()}
 $('restore').addEventListener('change',e=>{let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.units)throw 0;data=x;save();renderManage();alert('Sicherung wiederhergestellt.')}catch(e){alert('Ungültige Sicherung.')}};r.readAsText(f)})
-if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=43').catch(()=>{}));
+if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js?v=44').catch(()=>{}));
 applyLanguageUI();renderHome();
 </script></body></html>
